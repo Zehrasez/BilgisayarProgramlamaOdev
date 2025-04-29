@@ -1,72 +1,66 @@
 import pygame
 import sys
-import random
 
-def run_snake_game():
+def run_tictactoe_game():
     pygame.init()
 
-    WIDTH, HEIGHT = 600, 400
+    WIDTH, HEIGHT = 300, 300
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Snake")
-
-    clock = pygame.time.Clock()
-    font = pygame.font.Font(None, 35)
+    pygame.display.set_caption("Tic Tac Toe")
 
     WHITE = (255, 255, 255)
-    GREEN = (0, 255, 0)
-    RED = (255, 0, 0)
     BLACK = (0, 0, 0)
+    RED = (255, 0, 0)
 
-    snake = [(100, 100)]
-    direction = (20, 0)
-    food = (300, 200)
+    font = pygame.font.Font(None, 80)
 
-    def draw_snake():
-        for segment in snake:
-            pygame.draw.rect(screen, GREEN, pygame.Rect(segment[0], segment[1], 20, 20))
+    board = [[None]*3 for _ in range(3)]
+    current_player = "X"
 
-    def move_snake():
-        nonlocal food
-        new_head = (snake[0][0] + direction[0], snake[0][1] + direction[1])
-        if new_head == food:
-            snake.insert(0, new_head)
-            food = (random.randrange(0, WIDTH, 20), random.randrange(0, HEIGHT, 20))
-        else:
-            snake.insert(0, new_head)
-            snake.pop()
+    def draw_board():
+        screen.fill(WHITE)
+        pygame.draw.line(screen, BLACK, (100, 0), (100, 300), 3)
+        pygame.draw.line(screen, BLACK, (200, 0), (200, 300), 3)
+        pygame.draw.line(screen, BLACK, (0, 100), (300, 100), 3)
+        pygame.draw.line(screen, BLACK, (0, 200), (300, 200), 3)
 
-    def check_collision():
-        head = snake[0]
-        if (head[0] < 0 or head[0] >= WIDTH or head[1] < 0 or head[1] >= HEIGHT or head in snake[1:]):
+        for y in range(3):
+            for x in range(3):
+                if board[y][x]:
+                    label = font.render(board[y][x], True, RED)
+                    screen.blit(label, (x*100 + 30, y*100 + 10))
+
+        pygame.display.flip()
+
+    def check_winner():
+        for row in board:
+            if row.count(row[0]) == 3 and row[0]:
+                return True
+        for col in range(3):
+            if [board[row][col] for row in range(3)].count(board[0][col]) == 3 and board[0][col]:
+                return True
+        if [board[i][i] for i in range(3)].count(board[0][0]) == 3 and board[0][0]:
+            return True
+        if [board[i][2-i] for i in range(3)].count(board[0][2]) == 3 and board[0][2]:
             return True
         return False
 
     running = True
     while running:
-        screen.fill(WHITE)
+        draw_board()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP and direction != (0, 20):
-                    direction = (0, -20)
-                if event.key == pygame.K_DOWN and direction != (0, -20):
-                    direction = (0, 20)
-                if event.key == pygame.K_LEFT and direction != (20, 0):
-                    direction = (-20, 0)
-                if event.key == pygame.K_RIGHT and direction != (-20, 0):
-                    direction = (20, 0)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                x //= 100
+                y //= 100
+                if not board[y][x]:
+                    board[y][x] = current_player
+                    if check_winner():
+                        running = False
+                    current_player = "O" if current_player == "X" else "X"
 
-        move_snake()
-
-        if check_collision():
-            running = False
-
-        draw_snake()
-        pygame.draw.rect(screen, RED, pygame.Rect(food[0], food[1], 20, 20))
-        pygame.display.flip()
-        clock.tick(10)
-
-    pygame.time.delay(1000)  # Ölümden sonra bekle
+    pygame.time.delay(1000)  # Oyun bitince bekle
