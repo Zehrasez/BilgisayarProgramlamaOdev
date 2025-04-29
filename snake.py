@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import subprocess
 
 def run_snake_game():
     pygame.init()
@@ -41,6 +42,22 @@ def run_snake_game():
             return True
         return False
 
+    def game_over():
+        # Oyun bitti mesajı ve butonlar
+        font = pygame.font.Font(None, 50)
+        game_over_text = font.render("Oyun Bitti!", True, RED)
+        screen.blit(game_over_text, (WIDTH / 2 - 100, HEIGHT / 3))
+
+        # Ana menüye dönüş butonu
+        menu_button = pygame.Rect(WIDTH / 2 - 100, HEIGHT / 2, 200, 50)
+        pygame.draw.rect(screen, BLACK, menu_button)
+        menu_text = font.render("Ana Menüye Dön", True, WHITE)
+        screen.blit(menu_text, (WIDTH / 2 - 100 + 20, HEIGHT / 2 + 10))
+
+        pygame.display.flip()
+
+        return menu_button
+
     running = True
     while running:
         screen.fill(WHITE)
@@ -62,7 +79,16 @@ def run_snake_game():
         move_snake()
 
         if check_collision():
-            running = False
+            # Oyun bitti
+            menu_button = game_over()
+
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = event.pos
+                    if menu_button.collidepoint(x, y):
+                        pygame.quit()
+                        subprocess.run(["python", "main.py"])  # Ana menüyü tekrar başlat
+                        return  # Oyunu kapat
 
         draw_snake()
         pygame.draw.rect(screen, RED, pygame.Rect(food[0], food[1], 20, 20))
