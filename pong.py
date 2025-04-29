@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+import subprocess
 
 WIDTH, HEIGHT = 600, 400
 PADDLE_WIDTH, PADDLE_HEIGHT = 10, 80
@@ -80,9 +81,11 @@ def run_pong_game():
         if score["left"] >= SCORE_LIMIT:
             messagebox.showinfo("Oyun Bitti", "Sol Oyuncu Kazandı!")
             root.destroy()
+            subprocess.run(["python", "main.py"])  # Ana menüyü tekrar başlat
         elif score["right"] >= SCORE_LIMIT:
             messagebox.showinfo("Oyun Bitti", "Sağ Oyuncu Kazandı!")
             root.destroy()
+            subprocess.run(["python", "main.py"])  # Ana menüyü tekrar başlat
 
     root.bind("<KeyPress>", key_handler)
     update_score()
