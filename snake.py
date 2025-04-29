@@ -1,7 +1,6 @@
 import pygame
 import sys
 import random
-import subprocess
 
 def run_snake_game():
     pygame.init()
@@ -86,9 +85,7 @@ def run_snake_game():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = event.pos
                     if menu_button.collidepoint(x, y):
-                        pygame.quit()
-                        subprocess.run(["python", "main.py"])  # Ana menüyü tekrar başlat
-                        return  # Oyunu kapat
+                        return  # Ana menüye dönmek için oyunu sonlandırıyoruz
 
         draw_snake()
         pygame.draw.rect(screen, RED, pygame.Rect(food[0], food[1], 20, 20))
@@ -96,3 +93,4 @@ def run_snake_game():
         clock.tick(10)
 
     pygame.time.delay(1000)  # Ölümden sonra bekle
+
