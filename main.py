@@ -1,19 +1,13 @@
 import tkinter as tk
 from tkinter import PhotoImage
 from PIL import Image, ImageTk
-import threading
-import snake, pong, tictactoe
+import subprocess
 
-def start_game(game_func):
-    # Tkinter penceresini gizle
+def start_game_pyfile(pyfile_name):
     root.withdraw()
-    
-    # Oyunu çalıştır (ayrı thread içinde çalıştırıyoruz ki donmasın)
-    def game_thread():
-        game_func()
-        root.deiconify()  # Oyun bitince menüyü geri getir
-        
-    threading.Thread(target=game_thread).start()
+    root.update()
+    subprocess.run(["python", pyfile_name])
+    root.deiconify()
 
 # Ana pencere
 root = tk.Tk()
@@ -38,7 +32,7 @@ pong_icon = ImageTk.PhotoImage(Image.open("assets/pong_icon.jpeg").resize((40, 4
 tictactoe_icon = ImageTk.PhotoImage(Image.open("assets/tictactoe_icon.jpeg").resize((40, 40)))
 
 # Buton Stili
-def create_game_button(parent, text, icon, game_func):
+def create_game_button(parent, text, icon, file_name):
     btn = tk.Button(
         parent,
         text=f"  {text}",
@@ -54,26 +48,20 @@ def create_game_button(parent, text, icon, game_func):
         width=300,
         anchor="w",
         cursor="hand2",
-        command=lambda: start_game(game_func)
+        command=lambda: start_game_pyfile(file_name)
     )
-    
-    # Hover Efekti
-    def on_enter(e):
-        btn.config(bg="#388E3C")
-    def on_leave(e):
-        btn.config(bg="#4CAF50")
-    
+    def on_enter(e): btn.config(bg="#388E3C")
+    def on_leave(e): btn.config(bg="#4CAF50")
     btn.bind("<Enter>", on_enter)
     btn.bind("<Leave>", on_leave)
-    
     btn.pack(pady=15)
 
-# Butonlar
-create_game_button(root, "Snake", snake_icon, snake.run_snake_game)
-create_game_button(root, "Pong", pong_icon, pong.run_pong_game)
-create_game_button(root, "Tic Tac Toe", tictactoe_icon, tictactoe.run_tictactoe_game)
+# Oyun Butonları
+create_game_button(root, "Snake", snake_icon, "snake.py")
+create_game_button(root, "Pong", pong_icon, "pong.py")
+create_game_button(root, "Tic Tac Toe", tictactoe_icon, "tictactoe.py")
 
-# Çıkış Butonu
+# Çıkış
 exit_button = tk.Button(
     root,
     text="Çıkış",
