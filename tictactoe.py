@@ -4,18 +4,17 @@ import sys
 def run_tictactoe_game():
     pygame.init()
 
-    WIDTH, HEIGHT = 300, 300
+    WIDTH, HEIGHT = 500, 500
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Tic Tac Toe")
 
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     RED = (255, 0, 0)
+    BLUE = (0, 0, 255)
 
     font = pygame.font.Font(None, 80)
-
-    board = [[None]*3 for _ in range(3)]
-    current_player = "X"
+    small_font = pygame.font.Font(None, 36)
 
     def draw_board():
         screen.fill(WHITE)
@@ -35,32 +34,74 @@ def run_tictactoe_game():
     def check_winner():
         for row in board:
             if row.count(row[0]) == 3 and row[0]:
-                return True
+                return row[0]
         for col in range(3):
             if [board[row][col] for row in range(3)].count(board[0][col]) == 3 and board[0][col]:
-                return True
+                return board[0][col]
         if [board[i][i] for i in range(3)].count(board[0][0]) == 3 and board[0][0]:
-            return True
+            return board[0][0]
         if [board[i][2-i] for i in range(3)].count(board[0][2]) == 3 and board[0][2]:
-            return True
-        return False
+            return board[0][2]
+        return None
 
-    running = True
-    while running:
-        draw_board()
+    def is_draw():
+        for row in board:
+            if None in row:
+                return False
+        return True
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                x, y = event.pos
-                x //= 100
-                y //= 100
-                if not board[y][x]:
-                    board[y][x] = current_player
-                    if check_winner():
-                        running = False
-                    current_player = "O" if current_player == "X" else "X"
+    def show_message(text):
+        screen.fill(WHITE)
+        msg = font.render(text, True, BLUE)
+        screen.blit(msg, (WIDTH//2 - msg.get_width()//2, HEIGHT//2 - msg.get_height()//2))
+        pygame.display.flip()
+        pygame.time.delay(1500)
 
-    pygame.time.delay(1000)  # Oyun bitince bekle
+    def main_menu():
+        screen.fill(WHITE)
+        title = font.render("Tic Tac Toe", True, BLACK)
+        play_text = small_font.render("Oyunu başlatmak için bir tuşa basın", True, BLACK)
+
+        screen.blit(title, (WIDTH//2 - title.get_width()//2, 80))
+        screen.blit(play_text, (WIDTH//2 - play_text.get_width()//2, 180))
+        pygame.display.flip()
+
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                    waiting = False
+
+    while True:
+        main_menu()
+
+        board = [[None]*3 for _ in range(3)]
+        current_player = "X"
+        game_over = False
+
+        while not game_over:
+            draw_board()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = event.pos
+                    x //= 100
+                    y //= 100
+                    if not board[y][x]:
+                        board[y][x] = current_player
+                        winner = check_winner()
+                        if winner:
+                            draw_board()
+                            show_message(f"{winner} kazandı!")
+                            game_over = True
+                        elif is_draw():
+                            draw_board()
+                            show_message("Berabere!")
+                            game_over = True
+                        else:
+                            current_player = "O" if current_player == "X" else "X"
