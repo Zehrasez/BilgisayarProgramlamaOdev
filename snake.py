@@ -1,6 +1,6 @@
 import pygame
-import sys
 import random
+import sys
 
 def run_snake_game():
     pygame.init()
@@ -94,3 +94,5 @@ def run_snake_game():
 
     pygame.time.delay(1000)  # Ölümden sonra bekle
 
+if __name__ == "__main__":
+    run_snake_game()
