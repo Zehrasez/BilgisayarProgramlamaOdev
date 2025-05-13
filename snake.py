@@ -86,7 +86,7 @@ def run_snake_game():
                         if menu_button.collidepoint(event.pos):
                             waiting = False
                             running = False
-            continue  # Yeni döngüye geç (menüye dön)
+            continue
 
         draw_snake()
         pygame.draw.rect(screen, RED, pygame.Rect(food[0], food[1], 20, 20))

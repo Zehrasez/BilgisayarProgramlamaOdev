@@ -1,22 +1,22 @@
 import tkinter as tk
 import threading
-import snake
-import pong
-import tictactoe
-import breakout
-import spaceshooter  # Space Shooter oyunu eklendi
+import snake  # Yılan oyununu içe aktar
 
 def start_game(game_func):
     root.withdraw()  # Ana menüyü gizle
     def game_thread():
-        game_func()  # Oyunu çalıştır
-        root.after(100, root.deiconify)  # Oyun bitince ana menüyü geri getir
+        try:
+            game_func()  # Oyunu çalıştır
+        except Exception as e:
+            print("HATA:", e)
+        finally:
+            root.after(100, root.deiconify)  # Oyun bitince menüyü geri getir
     threading.Thread(target=game_thread).start()
 
 # Tkinter Ana Menü
 root = tk.Tk()
 root.title("Mini Game Hub")
-root.geometry("600x750")
+root.geometry("600x700")
 root.resizable(False, False)
 
 # Başlık
@@ -44,10 +44,6 @@ def create_game_button(parent, text, game_func):
 
 # Oyun Butonları
 create_game_button(root, "Snake", snake.run_snake_game)
-create_game_button(root, "Pong", pong.run_pong_game)
-create_game_button(root, "Tic Tac Toe", tictactoe.run_tictactoe_game)
-create_game_button(root, "Breakout", breakout.run_breakout_game)
-create_game_button(root, "Space Shooter", spaceshooter.run_spaceshooter_game)  # Yeni oyun
 
 # Çıkış Butonu
 exit_button = tk.Button(
