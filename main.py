@@ -1,7 +1,7 @@
 import tkinter as tk
 import threading
 
-# Oyun modüllerini içe aktar (aynı klasörde bulunmaları gerekiyor)
+# Oyun modüllerini içe aktar
 import snake
 import spaceshooter
 import tictactoe
@@ -14,29 +14,46 @@ import simon_says
 import game_2048
 
 def start_game(game_func):
-    root.withdraw()  # Ana menüyü gizle
+    root.withdraw()
     def game_thread():
-        game_func()  # Oyunu çalıştır
-        root.after(100, root.deiconify)  # Oyun bitince menüyü tekrar göster
+        game_func()
+        root.after(100, root.deiconify)
     threading.Thread(target=game_thread, daemon=True).start()
 
-# Tkinter arayüzü
+# Ana pencere
 root = tk.Tk()
 root.title("🎮 Mini Game Hub 🎮")
-root.geometry("600x950")
+root.geometry("600x700")
 root.resizable(False, False)
 
-tk.Label(root, text="🎮 Mini Game Hub 🎮", font=("Arial", 28, "bold")).pack(pady=30)
+# Kaydırılabilir tuval ve içeriği
+canvas = tk.Canvas(root, width=600, height=700)
+scrollbar = tk.Scrollbar(root, orient="vertical", command=canvas.yview)
+scrollable_frame = tk.Frame(canvas)
 
-# Oyun butonlarını oluşturan fonksiyon
+scrollable_frame.bind(
+    "<Configure>",
+    lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+)
+
+canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+canvas.configure(yscrollcommand=scrollbar.set)
+
+canvas.pack(side="left", fill="both", expand=True)
+scrollbar.pack(side="right", fill="y")
+
+# Başlık
+tk.Label(scrollable_frame, text="🎮 Mini Game Hub 🎮", font=("Arial", 28, "bold")).pack(pady=30)
+
+# Oyun butonlarını oluşturma fonksiyonu
 def create_game_button(name, color, func):
     tk.Button(
-        root, text=name, font=("Arial", 18),
+        scrollable_frame, text=name, font=("Arial", 18),
         bg=color, fg="white", width=30, height=2,
         command=lambda: start_game(func)
     ).pack(pady=10)
 
-# Oyunları menüye ekle
+# Oyunları ekle
 create_game_button("🐍 Snake", "green", snake.run_snake_game)
 create_game_button("🚀 Space Shooter", "blue", spaceshooter.run_spaceshooter_game)
 create_game_button("❌ Tic Tac Toe", "purple", tictactoe.run_tictactoe_game)
@@ -50,7 +67,7 @@ create_game_button("🔢 2048", "darkred", game_2048.run_2048_game)
 
 # Çıkış butonu
 tk.Button(
-    root, text="Çıkış", font=("Arial", 18),
+    scrollable_frame, text="Çıkış", font=("Arial", 18),
     bg="gray", fg="white", width=30, height=2,
     command=root.quit
 ).pack(pady=30)
