@@ -41,20 +41,17 @@ def run_snake_game():
             return True
         return False
 
-    def game_over():
-        # Oyun bitti mesajı ve butonlar
-        font = pygame.font.Font(None, 50)
-        game_over_text = font.render("Oyun Bitti!", True, RED)
-        screen.blit(game_over_text, (WIDTH / 2 - 100, HEIGHT / 3))
+    def show_game_over():
+        font_big = pygame.font.Font(None, 50)
+        text = font_big.render("Oyun Bitti!", True, RED)
+        screen.blit(text, (WIDTH // 2 - 100, HEIGHT // 3))
 
-        # Ana menüye dönüş butonu
-        menu_button = pygame.Rect(WIDTH / 2 - 100, HEIGHT / 2, 200, 50)
+        menu_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
         pygame.draw.rect(screen, BLACK, menu_button)
-        menu_text = font.render("Ana Menüye Dön", True, WHITE)
-        screen.blit(menu_text, (WIDTH / 2 - 100 + 20, HEIGHT / 2 + 10))
+        menu_text = font_big.render("Ana Menüye Dön", True, WHITE)
+        screen.blit(menu_text, (WIDTH // 2 - 90, HEIGHT // 2 + 10))
 
         pygame.display.flip()
-
         return menu_button
 
     running = True
@@ -78,21 +75,22 @@ def run_snake_game():
         move_snake()
 
         if check_collision():
-            # Oyun bitti
-            menu_button = game_over()
-
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    x, y = event.pos
-                    if menu_button.collidepoint(x, y):
-                        return  # Ana menüye dönmek için oyunu sonlandırıyoruz
+            menu_button = show_game_over()
+            waiting = True
+            while waiting:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if menu_button.collidepoint(event.pos):
+                            waiting = False
+                            running = False
+            continue  # Yeni döngüye geç (menüye dön)
 
         draw_snake()
         pygame.draw.rect(screen, RED, pygame.Rect(food[0], food[1], 20, 20))
         pygame.display.flip()
         clock.tick(10)
 
-    pygame.time.delay(1000)  # Ölümden sonra bekle
-
-if __name__ == "__main__":
-    run_snake_game()
+    pygame.quit()
