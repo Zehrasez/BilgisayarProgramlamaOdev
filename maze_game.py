@@ -9,19 +9,21 @@ def run_maze_game():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Maze Game")
 
+    # Renkler
     WHITE = (255, 255, 255)
-    BLACK = (0, 0, 0)
-    BLUE = (0, 0, 255)
-    GREEN = (0, 255, 0)
+    BLACK = (30, 30, 30)
+    BLUE = (50, 50, 255)
+    GREEN = (50, 200, 50)
+    GREY = (180, 180, 180)
 
     maze = [
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
-        [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
-        [1,0,1,0,1,0,0,0,0,0,0,0,1,0,1],
+        [1,1,1,1,1,0,1,0,1,1,1,1,1,0,1],
+        [1,0,0,0,1,0,0,0,0,0,0,0,1,0,1],
         [1,0,1,0,1,1,1,1,1,1,1,0,1,0,1],
-        [1,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+        [1,0,1,0,0,0,0,0,0,0,1,0,0,0,1],
+        [1,0,1,1,1,1,1,1,1,0,1,1,1,0,1],
         [1,0,0,0,0,0,0,0,1,0,0,0,1,0,1],
         [1,0,1,1,1,1,1,0,1,1,1,0,1,0,1],
         [1,0,0,0,0,0,1,0,0,0,1,0,0,0,1],
@@ -29,7 +31,7 @@ def run_maze_game():
         [1,0,0,0,1,0,0,0,0,0,0,0,0,0,1],
         [1,0,1,0,1,1,1,1,1,1,1,1,1,0,1],
         [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,0,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,0,1,1,1]
     ]
 
     player_pos = [1, 1]
@@ -40,10 +42,16 @@ def run_maze_game():
         for y in range(len(maze)):
             for x in range(len(maze[y])):
                 rect = pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-                color = WHITE if maze[y][x] == 0 else BLACK
-                pygame.draw.rect(screen, color, rect)
-        pygame.draw.rect(screen, BLUE, (player_pos[0]*TILE_SIZE, player_pos[1]*TILE_SIZE, TILE_SIZE, TILE_SIZE))
-        pygame.draw.rect(screen, GREEN, (goal_pos[0]*TILE_SIZE, goal_pos[1]*TILE_SIZE, TILE_SIZE, TILE_SIZE))
+                if maze[y][x] == 1:
+                    pygame.draw.rect(screen, BLACK, rect)
+                else:
+                    pygame.draw.rect(screen, GREY, rect)
+                    pygame.draw.rect(screen, WHITE, rect, 1)
+
+        # Hedef
+        pygame.draw.rect(screen, GREEN, (goal_pos[0]*TILE_SIZE+10, goal_pos[1]*TILE_SIZE+10, 20, 20))
+        # Oyuncu
+        pygame.draw.circle(screen, BLUE, (player_pos[0]*TILE_SIZE + TILE_SIZE//2, player_pos[1]*TILE_SIZE + TILE_SIZE//2), 16)
 
     running = True
     while running:

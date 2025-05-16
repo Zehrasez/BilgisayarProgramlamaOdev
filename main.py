@@ -2,6 +2,7 @@ import tkinter as tk
 import threading
 import time
 import random
+import math
 
 # Oyun modülleri
 import snake
@@ -43,26 +44,34 @@ canvas.configure(yscrollcommand=scrollbar.set)
 canvas.pack(side="left", fill="both", expand=True)
 scrollbar.pack(side="right", fill="y")
 
-# Dalga efekti
+# Kalp dalga efekti
 waves = []
 
 def create_wave(x, y):
-    wave = {'x': x, 'y': y, 'r': 0, 'alpha': 1.0}
+    wave = {'x': x, 'y': y, 'scale': 1.0, 'alpha': 1.0}
     waves.append(wave)
+
+def draw_heart(canvas, x, y, size, color, tag):
+    points = []
+    for t in range(0, 360, 5):
+        angle = math.radians(t)
+        x_offset = size * 16 * (math.sin(angle) ** 3)
+        y_offset = -size * (13 * math.cos(angle) - 5 * math.cos(2 * angle) - 2 * math.cos(3 * angle) - math.cos(4 * angle))
+        points.append((x + x_offset, y + y_offset))
+    canvas.create_polygon(points, outline=color, fill="", width=2, tags=tag)
 
 def update_waves():
     canvas.delete("wave")
     for wave in waves[:]:
-        wave['r'] += 2
-        wave['alpha'] -= 0.02
+        wave['scale'] += 0.15  # Yavaş büyüme
+        wave['alpha'] -= 0.03  # Hızlı şeffaflaşma
         if wave['alpha'] <= 0:
             waves.remove(wave)
             continue
-        color = f"#{int(255 * wave['alpha']):02x}{int(255 * wave['alpha']):02x}ff"
-        canvas.create_oval(
-            wave['x'] - wave['r'], wave['y'] - wave['r'],
-            wave['x'] + wave['r'], wave['y'] + wave['r'],
-            outline=color, width=2, tags="wave")
+        r = int(255 * wave['alpha'])
+        color = f"#ff{r:02x}{r:02x}"  # Kırmızıdan açık kırmızıya geçiş
+        size = 3 * wave['scale']  # Çok küçük kalp boyutu
+        draw_heart(canvas, wave['x'], wave['y'], size, color, "wave")
     root.after(30, update_waves)
 
 canvas.bind("<Button-1>", lambda e: create_wave(e.x, e.y))
