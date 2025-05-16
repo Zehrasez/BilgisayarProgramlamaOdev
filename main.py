@@ -1,7 +1,9 @@
 import tkinter as tk
 import threading
+import time
+import random
 
-# Oyun modülleri (aynı klasörde bulunmalılar)
+# Oyun modülleri
 import snake
 import spaceshooter
 import tictactoe
@@ -23,34 +25,51 @@ def start_game(game_func):
 root = tk.Tk()
 root.title("🎮 Mini Game Hub 🎮")
 root.geometry("600x700")
+root.configure(bg="black")
 
 # Canvas + Scrollbar
-canvas = tk.Canvas(root)
+canvas = tk.Canvas(root, bg="black", highlightthickness=0)
 scrollbar = tk.Scrollbar(root, orient="vertical", command=canvas.yview)
-scrollable_frame = tk.Frame(canvas)
+scrollable_frame = tk.Frame(canvas, bg="black")
 
 scrollable_frame.bind(
     "<Configure>",
-    lambda e: canvas.configure(
-        scrollregion=canvas.bbox("all")
-    )
+    lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
 )
 
 window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
 canvas.configure(yscrollcommand=scrollbar.set)
 
-# Scrollbar ve Canvas yerleşimi
 canvas.pack(side="left", fill="both", expand=True)
 scrollbar.pack(side="right", fill="y")
 
-# Fare tekerleği desteği
-def _on_mousewheel(event):
-    canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+# Dalga efekti
+waves = []
 
-canvas.bind_all("<MouseWheel>", _on_mousewheel)
+def create_wave(x, y):
+    wave = {'x': x, 'y': y, 'r': 0, 'alpha': 1.0}
+    waves.append(wave)
+
+def update_waves():
+    canvas.delete("wave")
+    for wave in waves[:]:
+        wave['r'] += 2
+        wave['alpha'] -= 0.02
+        if wave['alpha'] <= 0:
+            waves.remove(wave)
+            continue
+        color = f"#{int(255 * wave['alpha']):02x}{int(255 * wave['alpha']):02x}ff"
+        canvas.create_oval(
+            wave['x'] - wave['r'], wave['y'] - wave['r'],
+            wave['x'] + wave['r'], wave['y'] + wave['r'],
+            outline=color, width=2, tags="wave")
+    root.after(30, update_waves)
+
+canvas.bind("<Button-1>", lambda e: create_wave(e.x, e.y))
+update_waves()
 
 # Başlık
-tk.Label(scrollable_frame, text="🎮 Mini Game Hub 🎮", font=("Arial", 28, "bold")).pack(pady=30)
+tk.Label(scrollable_frame, text="🎮 Mini Game Hub 🎮", font=("Arial", 28, "bold"), bg="black", fg="white").pack(pady=30)
 
 # Buton oluşturma fonksiyonu
 def create_game_button(name, color, func):
@@ -72,11 +91,17 @@ create_game_button("🃏 Memory Card", "darkgreen", memory_card.run_memory_game)
 create_game_button("🎵 Simon Says", "indigo", simon_says.run_simon_says)
 create_game_button("🔢 2048", "darkred", game_2048.run_2048_game)
 
-# Çıkış
+# Çıkış butonu
 tk.Button(
     scrollable_frame, text="Çıkış", font=("Arial", 18),
     bg="gray", fg="white", width=30, height=2,
     command=root.quit
 ).pack(pady=30)
+
+# Fare tekerleği desteği
+def _on_mousewheel(event):
+    canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+canvas.bind_all("<MouseWheel>", _on_mousewheel)
 
 root.mainloop()
